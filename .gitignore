@@ -10,4 +10,3 @@ __pycache__/
 secrets/token/*.txt
 secrets/json/*.json
 secrets/url/*.txt
-secrets/url/kakao_config.json
