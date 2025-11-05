@@ -100,30 +100,6 @@ def test_send_message(access_token):
     check.equal(data["result_code"], 0, "result_code is not 0")
 
 
-def test_send_message_json(access_token):
-    """나에게 메시지 보내기 테스트 (자동 Test Data 생성)"""
-
-    # 테스트 데이터 자동 생성
-    body = generate_message_payload()
-    log.info(f"자동 생성된 메시지 payload: {body}")
-
-    # API 호출
-    api_client = KakaoApiClient(access_token)
-    resp = api_client.send_message_json(body)
-
-    # 결과 로그 및 검증
-    data = resp.json()
-    log.info(resp.status_code)
-    log.info(data)
-
-    # Assertions: resp.status_code = 200
-    check.equal(resp.status_code, 200, "status code is not 200")
-    # Assertions: data contains "result_code"
-    check.is_true("result_code" in data, "result_code is not in data")
-    # Assertions: data["result_code"] = 0
-    check.equal(data["result_code"], 0, "result_code is not 0")
-
-
 def test_send_message_default_text(access_token):
     """나에게 메시지 보내기 테스트 (src/services/test_data_generator.py 사용)"""
     body = generate_message_payload()
