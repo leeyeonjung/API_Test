@@ -1,0 +1,13 @@
+# pytest 캐시
+.pytest_cache/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# 인증 관련 파일 제외
+secrets/token/*.txt
+secrets/json/*.json
+secrets/url/*.txt
+secrets/url/kakao_config.json
