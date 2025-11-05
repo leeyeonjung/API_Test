@@ -1,4 +1,4 @@
-# src/servies/api_clients.py
+# src/services/api_clients.py
 
 # Standard library
 import json  # JSON 처리
@@ -68,19 +68,30 @@ class KakaoApiClient:
         return resp
 
 
-    def send_message_json(self, template_json: dict, use_template_id=False):
-        """나에게 메시지 보내기 (/v2/api/talk/memo/send)"""
-        url = f"{self.BASE_URL}/v2/api/talk/memo/send"
-        log.info(f"POST {url} with body {template_json}")
+    def send_message_default_text(self, template_json: dict):
+        """나에게 메시지 보내기 - 기본 텍스트용 (/v2/api/talk/memo/default/send)"""
+        url = f"{self.BASE_URL}/v2/api/talk/memo/default/send"
+        log.info(f"[DEFAULT] POST {url} with body {template_json}")
 
         headers = self.headers.copy()
         headers["Content-Type"] = "application/x-www-form-urlencoded"
 
-        if use_template_id:
-            payload = {"template_id": template_json["template_id"]}
-            if "template_args" in template_json:
-                payload["template_args"] = json.dumps(template_json["template_args"])
-        else:
-            payload = {"template_object": json.dumps(template_json)}
+        form_data = {"template_object": json.dumps(template_json)}
+        resp = requests.post(url, headers=headers, data=form_data)
+        return resp
 
-        return requests.post(url, headers=headers, data=payload)
+
+    def send_message_template(self, template_json: dict):
+        """나에게 메시지 보내기 - 등록된 템플릿용 (/v2/api/talk/memo/send)"""
+        url = f"{self.BASE_URL}/v2/api/talk/memo/send"
+        log.info(f"[TEMPLATE] POST {url} with body {template_json}")
+
+        headers = self.headers.copy()
+        headers["Content-Type"] = "application/x-www-form-urlencoded"
+
+        payload = {"template_id": template_json["template_id"]}
+        if "template_args" in template_json:
+            payload["template_args"] = json.dumps(template_json["template_args"])
+
+        resp = requests.post(url, headers=headers, data=payload)
+        return resp

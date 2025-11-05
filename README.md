@@ -8,8 +8,9 @@
 api_Test/
 ├── conftest.py                               # pytest 설정 및 fixture 정의
 ├── src/
-│   ├── servies/
-│   │   └── api_clients.py                    # Kakao API 클라이언트
+│   ├── services/
+│   │   ├── api_clients.py                    # Kakao API 클라이언트
+│   │   └── test_data_generator.py            # 테스트 데이터 생성 유틸리티
 │   └── utils/
 │       ├── code_to_token.py                  # Code → Token 변환 스크립트
 │       ├── get_refresh_token.py              # Refresh Token으로 새 Token 발급
@@ -132,7 +133,9 @@ pytest
 - `test_get_friends_list`: 친구 목록 조회
 - `test_get_talk_profile`: 카카오톡 프로필 조회
 - `test_send_message`: 나에게 메시지 보내기 (form-urlencoded)
-- `test_send_message_json`: 나에게 메시지 보내기 (JSON 템플릿 ID 사용)
+- `test_send_message_json`: 나에게 메시지 보내기 (자동 Test Data 생성)
+- `test_send_message_default_text`: 나에게 메시지 보내기 (test_data_generator.py 사용)
+- `test_send_message_with_template`: 등록된 템플릿(template_id)으로 메시지 보내기
 
 ## 📋 결과 Report
 - https://github.com/leeyeonjung/API_Test/tree/main/Result 링크에서 HTML Report 확인 가능합니다.

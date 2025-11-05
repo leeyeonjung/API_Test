@@ -7,7 +7,8 @@ import logging  # Logging setting
 import pytest_check as check
 
 # Local module
-from src.servies.api_clients import KakaoApiClient 
+from src.services.api_clients import KakaoApiClient 
+from src.services.test_data_generator import generate_message_payload
 
 # Logger setting
 log = logging.getLogger(__name__)
@@ -100,16 +101,60 @@ def test_send_message(access_token):
 
 
 def test_send_message_json(access_token):
-    """나에게 메시지 보내기 테스트 (JSON 템플릿 ID 사용)"""
+    """나에게 메시지 보내기 테스트 (자동 Test Data 생성)"""
 
+    # 테스트 데이터 자동 생성
+    body = generate_message_payload()
+    log.info(f"자동 생성된 메시지 payload: {body}")
+
+    # API 호출
+    api_client = KakaoApiClient(access_token)
+    resp = api_client.send_message_json(body)
+
+    # 결과 로그 및 검증
+    data = resp.json()
+    log.info(resp.status_code)
+    log.info(data)
+
+    # Assertions: resp.status_code = 200
+    check.equal(resp.status_code, 200, "status code is not 200")
+    # Assertions: data contains "result_code"
+    check.is_true("result_code" in data, "result_code is not in data")
+    # Assertions: data["result_code"] = 0
+    check.equal(data["result_code"], 0, "result_code is not 0")
+
+
+def test_send_message_default_text(access_token):
+    """나에게 메시지 보내기 테스트 (src/services/test_data_generator.py 사용)"""
+    body = generate_message_payload()
+    log.info(f"자동 생성된 메시지 payload: {body}")
+
+    api_client = KakaoApiClient(access_token)
+    resp = api_client.send_message_default_text(body)
+
+    data = resp.json()
+    log.info(resp.status_code)
+    log.info(data)
+
+    # Assertions: resp.status_code = 200
+    check.equal(resp.status_code, 200, "status code is not 200")
+    # Assertions: data contains "result_code"
+    check.is_true("result_code" in data, "result_code is not in data")
+    # Assertions: data["result_code"] = 0
+    check.equal(data["result_code"], 0, "result_code is not 0")
+
+
+def test_send_message_with_template(access_token):
+    """등록된 템플릿(template_id)으로 메시지 보내기 테스트"""
     body = {
-        "template_id": 125606,
-        "template_args": {"msg": "자동화 테스트 메시지입니다."}
+        "template_id": 125606,  # Kakao Developers 템플릿 ID
+        "template_args": {
+            "msg": "자동화 템플릿 메시지 테스트"
+        }
     }
 
     api_client = KakaoApiClient(access_token)
-    resp = api_client.send_message_json(body, use_template_id=True)
-    log.info(f"send_message_json response: {resp.json()}")
+    resp = api_client.send_message_template(body) 
 
     data = resp.json()
     log.info(resp.status_code)
