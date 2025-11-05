@@ -1,11 +1,34 @@
-import requests, json, logging
+# src/servies/api_clients.py
+
+# Standard library
+import json  # JSON 처리
+import logging  # 로깅 설정
+
+# 서드파티 라이브러리
+import requests  # HTTP 요청
+
+# Logger setting
 log = logging.getLogger(__name__)
 
+
 class KakaoApiClient:
-    BASE_URL = "https://kapi.kakao.com"
+    """
+    카카오 API 클라이언트 클래스
+    
+    Attributes:
+        BASE_URL (str): 카카오 API 기본 URL
+        headers (dict): HTTP 요청 헤더 (Authorization 포함)
+    """
+    BASE_URL = "https://kapi.kakao.com"  # 카카오 API 기본 URL
 
     def __init__(self, access_token: str):
-        self.headers = {"Authorization": f"Bearer {access_token}"}
+        """
+        KakaoApiClient 초기화
+        
+        Args:
+            access_token (str): 카카오 Access Token
+        """
+        self.headers = {"Authorization": f"Bearer {access_token}"}  # Authorization 헤더 설정
 
 
     def get_user_profile(self):

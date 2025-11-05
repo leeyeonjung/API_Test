@@ -1,8 +1,15 @@
-import logging
+# testcase/test_api.py
+
+# Standard library
+import logging  # Logging setting
+
+# Third-party library
 import pytest_check as check
 
-from src.servies.api_clients import KakaoApiClient
+# Local module
+from src.servies.api_clients import KakaoApiClient 
 
+# Logger setting
 log = logging.getLogger(__name__)
 
 
@@ -87,7 +94,6 @@ def test_send_message(access_token):
     # Assertions: resp.status_code = 200
     check.equal(resp.status_code, 200, "status code is not 200")
 
-    
     # Assertions: data contains "result_code" and "result_code" = 0
     check.is_true("result_code" in data, "result_code is not in data")
     check.equal(data["result_code"], 0, "result_code is not 0")

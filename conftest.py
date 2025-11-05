@@ -1,28 +1,33 @@
-import os
-import pytest
-import logging
-import subprocess
-from datetime import datetime
-from pathlib import Path
-import pytest_html
+# conftest.py
 
-# 로그 설정
+# Standard library
+import os  # 파일 경로 및 디렉토리 조작
+import logging  # 로깅 설정
+import subprocess  # 외부 스크립트 실행 (get_refresh_token.py 실행)
+from datetime import datetime  # 날짜/시간 형식화
+
+# Third-party library
+import pytest  # pytest 테스트 프레임워크
+
+
+# Logger setting
 log = logging.getLogger(__name__)
 
-BASE_DIR = os.path.dirname(__file__)
-TOKEN_DIR = os.path.join(BASE_DIR, "secrets", "token")
-ACCESS_TOKEN_PATH = os.path.join(TOKEN_DIR, "access_token.txt")
-REFRESH_TOKEN_PATH = os.path.join(TOKEN_DIR, "refresh_token.txt")
-REFRESH_SCRIPT = os.path.join(BASE_DIR, "src", "utils", "get_refresh_token.py")
-RESULT_DIR = os.path.join(BASE_DIR, "Result")
+# Path constant definition
+BASE_DIR = os.path.dirname(__file__)  # 프로젝트 루트 디렉토리
+TOKEN_DIR = os.path.join(BASE_DIR, "secrets", "token")  # 토큰 저장 디렉토리
+ACCESS_TOKEN_PATH = os.path.join(TOKEN_DIR, "access_token.txt")  # Access Token 파일 경로
+REFRESH_TOKEN_PATH = os.path.join(TOKEN_DIR, "refresh_token.txt")  # Refresh Token 파일 경로
+REFRESH_SCRIPT = os.path.join(BASE_DIR, "src", "utils", "get_refresh_token.py")  # 토큰 갱신 스크립트 경로
+RESULT_DIR = os.path.join(BASE_DIR, "Result")  # 테스트 리포트 저장 디렉토리
 
-# pytest CLI 옵션 추가
+
 def pytest_addoption(parser):
+    """pytest CLI 옵션 추가"""
     parser.addoption("--access-token", action="store", help="Kakao access token")
     parser.addoption("--refresh-token", action="store", help="Kakao refresh token")
 
 
-# pytest-html 리포트 설정
 def pytest_configure(config):
     """pytest 설정 시 HTML 리포트 경로 자동 설정"""
     # Result 디렉토리 생성
@@ -47,22 +52,43 @@ def pytest_html_report_title(report):
     report.title = "API Test Report"
 
 
-# 파일 유틸
 def read_file(path):
+    """
+    Read file content
+    
+    Args:
+        path (str): 파일 경로
+        
+    Returns:
+        str: 파일 내용 (줄바꿈 제거) 또는 None (파일이 없는 경우)
+    """
     if os.path.exists(path):
         with open(path, "r", encoding="utf-8") as f:
             return f.read().strip()
     return None
 
+
 def write_file(path, content):
+    """
+    파일에 내용 쓰기
+    
+    Args:
+        path (str): 파일 경로
+        content (str): 저장할 내용
+    """
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         f.write(content)
     log.info(f"Saved file: {path}")
 
-# get_refresh_token.py 실행 (자동 호출)
+
 def run_refresh_script():
-    """기존 refresh_token.py 스크립트를 호출하여 access_token 갱신"""
+    """
+    Refresh Token을 사용하여 새 Access Token 발급
+    
+    Returns:
+        str: 새로 발급된 Access Token 또는 None (실패 시)
+    """
     result = subprocess.run(
         ["python", REFRESH_SCRIPT],
         capture_output=True,
@@ -79,7 +105,6 @@ def run_refresh_script():
     return None
 
 
-# Access Token Fixture
 @pytest.fixture(scope="session")
 def access_token(request):
     """access_token 자동 관리 (CLI > 환경변수 > 파일 > refresh_token 순서)"""
