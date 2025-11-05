@@ -37,7 +37,7 @@ def pytest_configure(config):
     # HTML 리포트 경로 설정
     config.option.htmlpath = html_path
     
-    # assets 폴더 생성 방지 (CSS/JS를 HTML에 인라인으로 포함)
+    # CSS/JS를 HTML에 인라인으로 포함
     config.option.self_contained_html = True
     
     log.info(f"HTML report will be saved to: {html_path}")
