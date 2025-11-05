@@ -1,8 +1,17 @@
 import requests
 import json
+from pathlib import Path
 
-REST_API_KEY = "0de06958aa0be184ed0ce28cc0bb7e47"
-REDIRECT_URI = "http://3.36.219.242:8000/oauth"
+# 설정 파일 경로
+BASE_DIR = Path(__file__).resolve().parents[2]
+CONFIG_PATH = BASE_DIR / "secrets" / "json" / "kakao_config.json"
+
+# 설정 파일 읽기
+with open(CONFIG_PATH, encoding="utf-8") as f:
+    config = json.load(f)
+
+REST_API_KEY = config["client_id"]
+REDIRECT_URI = config["redirect_uri"]
 CODE = open("./secrets/token/code.txt", "r").read()
 
 data = {

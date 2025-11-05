@@ -18,40 +18,45 @@ api_Test/
 │   └── test_api.py                           # 테스트 케이스
 └── secrets/                                  # 토큰 및 url 저장 폴더 (Git 제외)
     ├── url/
-    │   ├── authorize_url.txt                 # 생성된 인증 URL
+    │   └── authorize_url.txt                 # 생성된 인증 URL
     ├── token/                                # 토큰 저장 디렉토리
     │   ├── access_token.txt                  # Access Token
     │   ├── refresh_token.txt                 # Refresh Token
     │   └── code.txt                          # Authorization Code
     └── json/                                 # API 응답 JSON 저장 디렉토리
-        ├── kakao_config.json                 # 카카오 API 설정 파일
+        ├── kakao_config.json                 # 카카오 API 설정 파일 (client_id, redirect_uri 등)
         ├── code_response_body.json           # Code → Token 응답
         └── refresh_response_body.json        # Refresh Token 응답
 ```
 
 ## 🚀 시작하기
 
+### 0. 설정 파일 작성
+
+**카카오 API 설정 파일 작성**
+- `secrets/json/kakao_config.json` 파일에 필요한 정보를 입력합니다:
+  ```json
+  {
+      "client_id": "YOUR_CLIENT_ID_HERE",
+      "redirect_uri": "http://localhost:8000/oauth",
+      "scopes": "talk_message,friends,profile_nickname,profile_image",
+      "authorize_url": "https://kauth.kakao.com/oauth/authorize",
+      "token_url": "https://kauth.kakao.com/oauth/token"
+  }
+  ```
+- 이 파일은 `.gitignore`에 포함되어 Git에 업로드되지 않습니다.
+- `client_id`는 REST API 키와 동일한 값입니다.
+- `code_to_token.py`와 `get_refresh_token.py` 스크립트가 이 파일의 `client_id`와 `redirect_uri`를 사용합니다.
+
 ### 1. 최초 Code 발급
 
-1. **설정 파일 작성**
-   - `secrets/json/kakao_config.json` 파일에 필요한 정보를 입력합니다
-     ```json
-     {
-         "client_id": "YOUR_CLIENT_ID_HERE",
-         "redirect_uri": "http://localhost:8000/oauth",
-         "scopes": "talk_message,friends",
-         "authorize_url": "https://kauth.kakao.com/oauth/authorize",
-         "token_url": "https://kauth.kakao.com/oauth/token"
-     }
-     ```
-
-2. **인증 URL 생성**
+1. **인증 URL 생성**
    ```bash
    python src/utils/make_url.py
    ```
    - 생성된 URL이 콘솔에 출력되고 `secrets/url/authorize_url.txt`에 저장됩니다.
 
-3. **Code 발급**
+2. **Code 발급**
    - 생성된 URL에 접속하여 카카오 로그인을 진행합니다.
    - 리다이렉트 URL에서 `code` 파라미터 값을 확인합니다.
 
@@ -123,8 +128,11 @@ pytest
 ## 📝 테스트 케이스
 
 - `test_get_user_profile_success`: 사용자 프로필 정보 조회
+- `test_get_access_token_info`: Access Token 정보 조회
 - `test_get_friends_list`: 친구 목록 조회
-- `test_send_message`: 나에게 메시지 보내기
+- `test_get_talk_profile`: 카카오톡 프로필 조회
+- `test_send_message`: 나에게 메시지 보내기 (form-urlencoded)
+- `test_send_message_json`: 나에게 메시지 보내기 (JSON 템플릿 ID 사용)
 
 ## ⚠️ 주의사항
 

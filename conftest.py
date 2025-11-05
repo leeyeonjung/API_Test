@@ -13,9 +13,8 @@ BASE_DIR = os.path.dirname(__file__)
 TOKEN_DIR = os.path.join(BASE_DIR, "secrets", "token")
 ACCESS_TOKEN_PATH = os.path.join(TOKEN_DIR, "access_token.txt")
 REFRESH_TOKEN_PATH = os.path.join(TOKEN_DIR, "refresh_token.txt")
-REFRESH_SCRIPT = os.path.join(BASE_DIR, "secrets", "src", "get_refresh_token.py")
+REFRESH_SCRIPT = os.path.join(BASE_DIR, "src", "utils", "get_refresh_token.py")
 RESULT_DIR = os.path.join(BASE_DIR, "Result")
-
 
 # pytest CLI 옵션 추가
 def pytest_addoption(parser):
@@ -61,6 +60,24 @@ def write_file(path, content):
         f.write(content)
     log.info(f"Saved file: {path}")
 
+# get_refresh_token.py 실행 (자동 호출)
+def run_refresh_script():
+    """기존 refresh_token.py 스크립트를 호출하여 access_token 갱신"""
+    result = subprocess.run(
+        ["python", REFRESH_SCRIPT],
+        capture_output=True,
+        text=True,
+        check=True
+    )
+    log.info("🔄 get_refresh_token.py executed successfully.")
+    new_token = read_file(ACCESS_TOKEN_PATH)
+    if new_token:
+        log.info("New access token loaded after refresh.")
+        return new_token
+    else:
+        log.error("Refresh script ran, but no new token found.")
+    return None
+
 
 # Access Token Fixture
 @pytest.fixture(scope="session")
@@ -78,11 +95,12 @@ def access_token(request):
         log.info("Using access token from environment variable")
         return env_token
     
+    # 3. 파일에서 읽기
     token = read_file(ACCESS_TOKEN_PATH)
     if token:
         log.info("Using access token from file")
         return token
-
+    
     # 4. CLI나 파일에 없으면 refresh_token 기반 자동 갱신
     refresh_token = request.config.getoption("--refresh-token") or read_file(REFRESH_TOKEN_PATH)
     if refresh_token:
@@ -91,27 +109,6 @@ def access_token(request):
         if new_token:
             write_file(ACCESS_TOKEN_PATH, new_token)
             return new_token
-
+    
     # 토큰을 찾을 수 없으면 실패
     pytest.fail("No valid access token found. Provide --access-token, set ACCESS_TOKEN env var, or ensure access_token.txt exists.")
-
-
-# get_refresh_token.py 실행 (자동 호출)
-def run_refresh_script():
-    """기존 refresh_token.py 스크립트를 호출하여 access_token 갱신"""
-
-    result = subprocess.run(
-        ["python", REFRESH_SCRIPT],
-        capture_output=True,
-        text=True,
-        check=True
-    )
-    log.info("🔄 get_refresh_token.py executed successfully.")
-    new_token = read_file(ACCESS_TOKEN_PATH)
-    if new_token:
-        log.info("New access token loaded after refresh.")
-        return new_token
-    else:
-        log.error("Refresh script ran, but no new token found.")
-
-    return None
