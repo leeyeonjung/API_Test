@@ -1,7 +1,7 @@
 import logging
 import pytest_check as check
 
-from kakao_api_tests.api_list.api_clients import KakaoApiClient
+from src.servies.api_clients import KakaoApiClient
 
 log = logging.getLogger(__name__)
 

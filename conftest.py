@@ -2,6 +2,9 @@ import os
 import pytest
 import logging
 import subprocess
+from datetime import datetime
+from pathlib import Path
+import pytest_html
 
 # 로그 설정
 log = logging.getLogger(__name__)
@@ -11,12 +14,38 @@ TOKEN_DIR = os.path.join(BASE_DIR, "secrets", "token")
 ACCESS_TOKEN_PATH = os.path.join(TOKEN_DIR, "access_token.txt")
 REFRESH_TOKEN_PATH = os.path.join(TOKEN_DIR, "refresh_token.txt")
 REFRESH_SCRIPT = os.path.join(BASE_DIR, "secrets", "src", "get_refresh_token.py")
+RESULT_DIR = os.path.join(BASE_DIR, "Result")
 
 
 # pytest CLI 옵션 추가
 def pytest_addoption(parser):
     parser.addoption("--access-token", action="store", help="Kakao access token")
     parser.addoption("--refresh-token", action="store", help="Kakao refresh token")
+
+
+# pytest-html 리포트 설정
+def pytest_configure(config):
+    """pytest 설정 시 HTML 리포트 경로 자동 설정"""
+    # Result 디렉토리 생성
+    os.makedirs(RESULT_DIR, exist_ok=True)
+    
+    # 날짜시간 형식: YYYYMMDD_HHMMSS
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    html_filename = f"test_report_{timestamp}.html"
+    html_path = os.path.join(RESULT_DIR, html_filename)
+    
+    # HTML 리포트 경로 설정
+    config.option.htmlpath = html_path
+    
+    # assets 폴더 생성 방지 (CSS/JS를 HTML에 인라인으로 포함)
+    config.option.self_contained_html = True
+    
+    log.info(f"HTML report will be saved to: {html_path}")
+
+
+def pytest_html_report_title(report):
+    """HTML 리포트 제목 설정"""
+    report.title = "API Test Report"
 
 
 # 파일 유틸
@@ -57,7 +86,7 @@ def access_token(request):
     # 4. CLI나 파일에 없으면 refresh_token 기반 자동 갱신
     refresh_token = request.config.getoption("--refresh-token") or read_file(REFRESH_TOKEN_PATH)
     if refresh_token:
-        log.info("♻️ No access token found. Refreshing via script...")
+        log.info("No access token found. Refreshing via script...")
         new_token = run_refresh_script()
         if new_token:
             write_file(ACCESS_TOKEN_PATH, new_token)

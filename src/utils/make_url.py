@@ -1,7 +1,8 @@
 import json
 from pathlib import Path
 
-CONFIG_PATH = Path(__file__).resolve().parent / "kakao_config.json"
+BASE_DIR = Path(__file__).resolve().parents[2]
+CONFIG_PATH = BASE_DIR / "secrets" / "json" / "kakao_config.json"
 
 with open(CONFIG_PATH, encoding="utf-8") as f:
     cfg = json.load(f)
