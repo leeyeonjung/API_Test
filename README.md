@@ -134,6 +134,9 @@ pytest
 - `test_send_message`: 나에게 메시지 보내기 (form-urlencoded)
 - `test_send_message_json`: 나에게 메시지 보내기 (JSON 템플릿 ID 사용)
 
+## 📋 결과 Report
+- https://github.com/leeyeonjung/API_Test/tree/main/Result 링크에서 HTML Report 확인 가능합니다.
+
 ## ⚠️ 주의사항
 
 - `secrets/` 디렉토리의 파일들은 `.gitignore`에 포함되어 Git에 업로드되지 않습니다.
